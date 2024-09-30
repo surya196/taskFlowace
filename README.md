@@ -1,7 +1,7 @@
 # taskFlowace
 this is a node.js application.
 
-prerequisties
+# prerequisties
 node.js :download and install node js from nodejs.org
 
 clone the repository: git clone https://github.com/surya196/taskFlowace.git
