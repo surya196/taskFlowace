@@ -1,31 +1,41 @@
-export const login = (req: any, res: any) => {
-    const { email, password } = req.body;
-    // const hashedPassword = hashPassword(password);
-  res.status(201).json({ message: 'Login successful' });
-    // db.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, hashedPassword], (err, results) => {
-    //     if (err) {
-    //         return res.status(500).json({ error: 'Database error' });
-    //     }
-    //     if (results.length > 0) {
-    //         res.status(200).json({ message: 'Login successful' });
-    //     } else {
-    //         res.status(401).json({ message: 'Invalid email or password' });
-    //     }
-    // });
-  };
+import { Request, Response } from "express";
+import { verifyPassword } from "../../util/cryptoUtil";
+import { getConnection } from "../../config/dbConfig";
+import { response } from "../../util/responseUtil";
+import { BadRequestError, NotFoundError } from "../../util/errorUtil";
+import { generateTokens } from "./tokenController";
+import { IUser } from "../../types/interfaces/IUser";
 
-//   export const login = async (req: Request, res: Response) => {
-//     const { email, password } = req.body;
-//     const hashedPassword = hashPassword(password);
+export const login = async (req: Request, res: Response) => {
+  const { email, password, tenantId } = req.body;
+  let connection;
 
-//     try {
-//         const [results] = await db.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, hashedPassword]);
-//         if (results.length > 0) {
-//             res.status(200).json({ message: 'Login successful' });
-//         } else {
-//             res.status(401).json({ message: 'Invalid email or password' });
-//         }
-//     } catch (err) {
-//         res.status(500).json({ error: 'Database error' });
-//     }
-// };
+  try {
+    connection = await getConnection();
+    const rows = await connection.query("SELECT * FROM login WHERE email = ? AND tenant_id = ?", [email, tenantId]);
+    const user: any = rows[0];
+
+    if (user.length == 0) {
+      throw new NotFoundError("User not found register first.");
+    }
+
+    const isMatch = verifyPassword(password, user[0].password);
+    if (!isMatch) {
+      throw new BadRequestError("Invalid password.");
+    }
+
+    const tokenRequest: IUser = {
+      email: user[0].email,
+      tenantId: user[0].tenant_id
+    }
+    const tokens = generateTokens(tokenRequest);
+
+    response.sendSuccess(res, "Login successful", { tokens });
+  } catch (error) {
+    response.sendError(res, error);
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
