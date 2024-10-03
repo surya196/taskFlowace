@@ -11,7 +11,8 @@ export const login = async (req: Request, res: Response) => {
   let connection;
 
   try {
-    connection = await getConnection();
+    connection = await getConnection("userDb");
+    console.log("connectiommnnnn")
     const rows = await connection.query("SELECT * FROM login WHERE email = ? AND tenant_id = ?", [email, tenantId]);
     const user: any = rows[0];
 

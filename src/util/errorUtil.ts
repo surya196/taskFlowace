@@ -9,7 +9,7 @@ class AppError extends Error {
 
 export class ConflictError extends AppError {
     constructor(msg: string) {
-        super(`Email already registered: ${msg}`, 409);
+        super(`Conflict: ${msg}`, 409);
     }
 }
 

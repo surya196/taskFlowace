@@ -9,7 +9,7 @@ export const register = async (req: Request, res: Response) => {
   let connection;
 
   try {
-    connection = await getConnection();
+    connection = await getConnection("userDb");
     await validateUser(email, tenantId, connection);
 
     const hashedPassword = hashPassword(password);
