@@ -9,9 +9,11 @@ export const createPerson = async (req: Request, res: Response) => {
     let connection = req.body.dbConnection;
     const { name, age, gender, address, phone } = req.body;
     try {
-        await validateExistingPersonForCreate(connection, phone);
+        if (phone) {
+            await validateExistingPersonForCreate(connection, phone);
+        }
         const id = "PERSON:" + generateId();
-        const values = [id, name, age ?? null, gender ?? null, address ?? null, phone];
+        const values = [id, name, age ?? null, gender ?? null, address ?? null, phone ?? null];
         const result = await connection.execute(
             'INSERT INTO person (id, name, age, gender, address, phone) VALUES (?, ?, ?, ?, ?, ?)',
             values

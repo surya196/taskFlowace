@@ -5,11 +5,12 @@ import { validateExistingPersonForUpdate } from "../../middlewares/personMiddlew
 
 export const updatePerson = async (req: Request, res: Response) => {
     const connection = req.body.dbConnection;
-    const { id, phoneParms } = req.params;
+    const { id } = req.params;
     const { name, age, gender, address, phone } = req.body;
-    console.log(req.params, "parms")
     try {
-        await validateExistingPersonForUpdate(connection, Number(phoneParms), id);
+        if (phone) {
+            await validateExistingPersonForUpdate(connection, Number(phone), id);
+        }
 
         const updates: string[] = [];
         const values: string[] = [];

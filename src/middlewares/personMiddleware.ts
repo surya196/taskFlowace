@@ -9,7 +9,7 @@ import rateLimit from 'express-rate-limit';
 import { authenticateToken } from "./authMiddleware";
 dotenv.config();
 
-export const originBasedValidation = async (req: any, res: any, next: any) => {
+const originBasedValidation = async (req: any, res: any, next: any) => {
     try {
         const tenantOrigin = req.get('Origin');
         let tenantId;
@@ -38,8 +38,8 @@ export const originBasedValidation = async (req: any, res: any, next: any) => {
     }
 };
 
-export const jwtBasedValidation = async (req: any, res: any, next: any) => {
-    const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || '';
+const jwtBasedValidation = async (req: any, res: any, next: any) => {
+    const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'ef3d9dc8-8c75-4ac2-b6dc-9eb9f989b674';
 
     try {
         const token = req.headers['authorization']?.split(' ')[1];
@@ -57,17 +57,17 @@ export const jwtBasedValidation = async (req: any, res: any, next: any) => {
     }
 };
 
- const personValidationRules = () => {
+const personValidationRules = () => {
     return [
-        body('name').optional().notEmpty().withMessage('Name cannot be empty if provided'),
+        body('name').isString().withMessage('Name cannot be empty if provided'),
         body('age').optional().isInt({ gt: 0 }).withMessage('Age must be a positive integer if provided'),
         body('gender').optional().isIn(['male', 'female', 'other']).withMessage('Gender must be male, female, or other if provided'),
         body('address').optional().notEmpty().withMessage('Address cannot be empty if provided'),
-        body('phone').optional().notEmpty().withMessage('Phone cannot be empty if provided')
+        body('phone').notEmpty().withMessage('Phone cannot be empty if provided')
     ];
 };
 
-export const validate = (req: any, res: any, next: any) => {
+const validate = (req: any, res: any, next: any) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -95,6 +95,8 @@ export const validateExistingPersonForUpdate = async (connection: any, phone: nu
     if (existingRows.length > 0) {
         throw new ConflictError(` Phone number ${phone} must be unique`);
     }
+
+    await validateExistingPersonForDelete(connection, id);
 }
 
 export const validateExistingPersonForDelete = async (connection: any, id: string) => {
@@ -113,9 +115,29 @@ export const validateForPersonGet = (pageNumber: number, limitNumber: number) =>
     }
 }
 
-export const personValidations: any[] = [
+export const personValidationsForv2: any[] = [
     authenticateToken,
     jwtBasedValidation,
+    limiter
+];
+
+export const personValidationForCreatev2: any[] = [
+    authenticateToken,
+    jwtBasedValidation,
+    personValidationRules(),
+    validate,
+    limiter
+];
+
+export const personValidationsForv1: any[] = [
+    authenticateToken,
+    originBasedValidation,
+    limiter
+];
+
+export const personValidationForCreatev1: any[] = [
+    authenticateToken,
+    originBasedValidation,
     personValidationRules(),
     validate,
     limiter

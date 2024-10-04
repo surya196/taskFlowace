@@ -23,7 +23,7 @@ export const validate = (req: any, res: any, next: any) => {
 
 export const authenticateToken = (req: any, res: any, next: any) => {
     const token = req.headers['authorization']?.split(' ')[1];
-    const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || '';
+    const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'ef3d9dc8-8c75-4ac2-b6dc-9eb9f989b674';
 
     try {
         if (!token) throw new BadRequestError("refersh token cannot be empty");

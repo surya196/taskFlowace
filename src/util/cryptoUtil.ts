@@ -2,7 +2,7 @@ import { randomBytes, createHmac } from 'crypto';
 import dotenv from 'dotenv';
 
 dotenv.config();
-const SECRET = process.env.SECRET || "";
+const SECRET = process.env.SECRET || "b833ee8a-f06f-45cb-b0fa-c141e55a8327";
 
 export const generateId = (length = 16) => {
   return randomBytes(length).toString('hex');

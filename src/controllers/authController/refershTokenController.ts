@@ -7,7 +7,7 @@ dotenv.config();
 
 export const refreshToken = (req: any, res: any) => {
     const { token } = req.body;
-    const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || '';
+    const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'b7fbdd30-7fec-407c-b6f2-fbb4dc27387b';
     try {
         if (!token) throw new BadRequestError("refersh token cannot be empty");
         
